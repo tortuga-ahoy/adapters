@@ -13,12 +13,8 @@ export const testAdapter = async (adapter) => {
   });
 
   describe.runIf(adapter.type === "source")("works correctly as a source adapter", async () => {
-    test(`has a valid home (${adapter.home})`, () => {
-      expect(adapter.home).toBeTruthy();
-    });
-
-    test(`has a valid RegEx url pattern match`, () => {
-      expect(adapter.match).toBeInstanceOf(RegExp);
+    test(`has a valid source (${adapter.source})`, () => {
+      expect(adapter.source).toBeTruthy();
     });
 
     let games = [];

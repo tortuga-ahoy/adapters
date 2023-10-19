@@ -1,9 +1,9 @@
 {
   "scripts": {
-    "test": "vitest"
+    "test": "vitest",
+    "release": "node scripts/release.mjs"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
     "puppeteer": "^21.3.6",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",

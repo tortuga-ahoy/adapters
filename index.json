@@ -1,0 +1,10 @@
+[
+  {
+    "id": "fitgirl-repacks",
+    "name": "FitGirl Repacks",
+    "type": "source",
+    "version": "0.1.2",
+    "source": "https://fitgirl-repacks.site/",
+    "module": "fitgirl.mjs"
+  }
+]
