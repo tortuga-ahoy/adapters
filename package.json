@@ -1,12 +1,13 @@
 {
   "scripts": {
     "test": "vitest",
-    "release": "node scripts/release.mjs"
+    "build": "node scripts/build.mjs"
   },
   "devDependencies": {
     "puppeteer": "^21.3.6",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "vite": "^4.3.9",
     "vitest": "^0.34.6"
   }
 }

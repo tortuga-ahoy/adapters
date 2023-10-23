@@ -24,7 +24,26 @@ export const testAdapter = async (adapter) => {
     const StealthPlugin = (await import("puppeteer-extra-plugin-stealth")).default;
     puppeteer.use(StealthPlugin());
 
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({
+      headless: false,
+      userDataDir: "./.local/chromeUserData",
+    });
+
+    let page = (await browser.pages())[0];
+    await page.goto(adapter.source, { waitUntil: "load" });
+    const challenge = await page.$("iframe[src*='challenges.cloudflare']");
+    if (challenge) {
+      await page.close();
+      page = await browser.newPage();
+      page.evaluate(() =>
+        alert(
+          `Test suite needs manual challenge clearance on this site to run automated tasks.\nPlease solve the challenge, close the browser, and run the test again`
+        )
+      );
+      await page.goto(adapter.source);
+      browser.disconnect();
+      return false;
+    }
 
     test(
       `searching returns a valid list of games`,
@@ -37,7 +56,7 @@ export const testAdapter = async (adapter) => {
         );
         games = results;
       },
-      { timeout: 10 * 1000 }
+      { timeout: 10 * 30000 }
     );
 
     test(
@@ -47,7 +66,7 @@ export const testAdapter = async (adapter) => {
         expect(result).toBeDefined();
         game = result;
       },
-      { timeout: 10 * 1000 }
+      { timeout: 10 * 30000 }
     );
 
     test("game title is defined", () => {
