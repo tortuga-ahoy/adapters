@@ -1,0 +1,18 @@
+[
+  {
+    "id": "fitgirl-repacks",
+    "name": "FitGirl Repacks",
+    "type": "source",
+    "version": "0.1.2",
+    "source": "https://fitgirl-repacks.site/",
+    "module": "fitgirl-repacks.mjs"
+  },
+  {
+    "id": "gog-games",
+    "name": "GOG Games",
+    "type": "source",
+    "version": "0.1.0",
+    "source": "https://gog-games.to/",
+    "module": "gog-games.mjs"
+  }
+]
