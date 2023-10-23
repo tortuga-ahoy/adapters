@@ -1,42 +1,41 @@
-const w = {
+const p = {
   id: "gog-games",
   name: "GOG Games",
   type: "source",
-  version: "0.1.0",
+  version: "0.1.1",
   source: "https://gog-games.to/",
   support: "https://gog-games.to/donate",
   cloudflare: !0,
-  search: async (o, { query: a }) => {
-    const t = await o.newPage();
-    return await t.goto(`https://gog-games.to/search/${a}`), await t.waitForSelector(".game-blocks"), await t.$$eval(
+  search: async (a, { query: o }) => {
+    const e = await a.newPage();
+    return await e.goto(`https://gog-games.to/search/${o}`, { waitUntil: "load" }), await e.waitForSelector(".container.search"), await e.$$eval(
       ".block",
-      (n) => n.reduce((r, e) => (r.push({
-        title: e.querySelector(".title").textContent.trim(),
-        url: e.href.trim(),
-        cover: e.querySelector(".image img").src.replace("_196", "")
+      (n) => n.reduce((r, t) => (r.push({
+        title: t.querySelector(".title").textContent.trim(),
+        url: t.href.trim(),
+        cover: t.querySelector(".image img").src.replace("_196", "")
       }), r), [])
     );
   },
-  fetch: async (o, { url: a }) => {
-    const t = await o.newPage();
-    await t.goto(a);
-    const s = await t.waitForSelector("#game-details"), n = s.$eval("h1", (e) => e.textContent.trim()), r = await s.$$eval(".items-group", (e) => {
-      let i = [];
-      for (const c of e) {
-        const l = c.querySelector(".title");
-        if (l && l.textContent.trim().toLowerCase().includes("game download")) {
-          const u = c.querySelectorAll(".item-expand-wrap");
-          i = [
-            ...i,
-            ...Array.from(u).map((g) => {
-              const m = g.querySelector(".item[title]").getAttribute("title").trim(), p = g.querySelector(".items-group a").href.trim();
-              return { name: m, href: p };
-            })
-          ];
-        }
+  fetch: async (a, { url: o }) => {
+    const e = await a.newPage();
+    await e.goto(o, { waitUntil: "load" });
+    const i = await e.waitForSelector("#game-details"), n = await i.$eval("h1", (t) => t.textContent.trim()), r = await i.$$eval(".items-group", (t) => t.reduce((s, c) => {
+      const l = c.querySelector(".title");
+      if (!l)
+        return s;
+      if (l.textContent.trim().toLowerCase().includes("game download")) {
+        const g = c.querySelectorAll(".item-expand-wrap");
+        return [
+          ...s,
+          ...Array.from(g).map((u) => {
+            const m = u.querySelector(".item[title]").getAttribute("title").trim(), w = u.querySelector(".items-group a").href.trim();
+            return { name: m, href: w };
+          })
+        ];
       }
-      return i;
-    });
+      return s;
+    }, []));
     return {
       cover: null,
       title: n,
@@ -48,5 +47,5 @@ const w = {
   }
 };
 export {
-  w as default
+  p as default
 };

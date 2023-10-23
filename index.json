@@ -11,7 +11,7 @@
     "id": "gog-games",
     "name": "GOG Games",
     "type": "source",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "source": "https://gog-games.to/",
     "module": "gog-games.mjs"
   }
