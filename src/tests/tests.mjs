@@ -1,24 +1,21 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, afterAll, test, expectTypeOf } from "vitest";
 
 const SEMVER_REGEX =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
-export const testAdapter = async (adapter) => {
-  test(`has a valid semantic version number (${adapter.version})`, () => {
+export const testAdapter = async (adapter, props) => {
+  test(`should have a valid semantic version number (${adapter.version})`, () => {
     expect(adapter.version).toMatch(SEMVER_REGEX);
   });
 
-  test(`is of valid type (${adapter.type})`, () => {
+  test(`should have a valid type (${adapter.type})`, () => {
     expect(["source", "metadata", "filehost"]).toContain(adapter.type);
   });
 
-  describe.runIf(adapter.type === "source")("works correctly as a source adapter", async () => {
-    test(`has a valid source (${adapter.source})`, () => {
+  describe.runIf(adapter.type === "source")("working correctly as a source adapter", async () => {
+    test(`should have a valid source (${adapter.source})`, () => {
       expect(adapter.source).toBeTruthy();
     });
-
-    let games = [];
-    let game = {};
 
     const puppeteer = await import("puppeteer-extra");
     const StealthPlugin = (await import("puppeteer-extra-plugin-stealth")).default;
@@ -42,35 +39,58 @@ export const testAdapter = async (adapter) => {
       );
       await page.goto(adapter.source);
       browser.disconnect();
-      return false;
+      return;
     }
 
-    test(
-      `searching returns a valid list of games`,
-      async () => {
-        const results = await adapter.search(browser, { query: "fallout" });
-        expect(results).toEqual(
+    describe(`searching games`, () => {
+      test(
+        `should return a list of valid results`,
+        async () => {
+          const results = await adapter.search(browser, { query: props.searchQuery });
+          expect(results).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ title: expect.any(String), url: expect.any(String) }),
+            ])
+          );
+        },
+        { timeout: 10 * 30000 }
+      );
+      test(
+        `should handle searches with no results`,
+        async () => {
+          const results = await adapter.search(browser, { query: `$0bp94U@l9/R` });
+          expect(results).toHaveLength(0);
+        },
+        { timeout: 10 * 30000 }
+      );
+    });
+
+    describe(`fetching a single game`, async () => {
+      let game = {};
+      test(
+        `should return a valid object`,
+        async () => {
+          const result = await adapter.fetch(browser, { url: props.gameUrl });
+          expect(result).toBeDefined();
+          game = result;
+        },
+        { timeout: 10 * 30000 }
+      );
+      test(`should have the title being a valid string`, () => {
+        expectTypeOf(game.title).toBeString();
+      });
+      test(`should have the downloads being a valid list of objects`, () => {
+        expect(game.downloads).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ title: expect.any(String), url: expect.any(String) }),
+            expect.objectContaining({ name: expect.any(String), href: expect.any(String) }),
           ])
         );
-        games = results;
-      },
-      { timeout: 10 * 30000 }
-    );
+      });
+      afterAll(() => console.log(game));
+    });
 
-    test(
-      `fetching a game returns valid data`,
-      async () => {
-        const result = await adapter.fetch(browser, { url: games[0].url });
-        expect(result).toBeDefined();
-        game = result;
-      },
-      { timeout: 10 * 30000 }
-    );
-
-    test("game title is defined", () => {
-      expect(game.title).toBeDefined();
+    afterAll(async () => {
+      await browser.close();
     });
   });
 };
