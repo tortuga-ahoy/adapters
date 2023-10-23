@@ -2,7 +2,7 @@ export default {
   id: "gog-games",
   name: "GOG Games",
   type: "source",
-  version: "0.1.0",
+  version: "0.1.1",
   source: "https://gog-games.to/",
   support: "https://gog-games.to/donate",
 
@@ -10,8 +10,8 @@ export default {
 
   search: async (browser, { query }) => {
     const page = await browser.newPage();
-    await page.goto(`https://gog-games.to/search/${query}`);
-    await page.waitForSelector(".game-blocks");
+    await page.goto(`https://gog-games.to/search/${query}`, { waitUntil: "load" });
+    await page.waitForSelector(".container.search");
 
     const results = await page.$$eval(".block", (blocks) =>
       blocks.reduce((results, block) => {
@@ -28,21 +28,20 @@ export default {
 
   fetch: async (browser, { url }) => {
     const gamePage = await browser.newPage();
-    await gamePage.goto(url);
+    await gamePage.goto(url, { waitUntil: "load" });
 
     const content = await gamePage.waitForSelector("#game-details");
 
-    const title = content.$eval("h1", (title) => title.textContent.trim());
+    const title = await content.$eval("h1", (title) => title.textContent.trim());
 
     const downloads = await content.$$eval(`.items-group`, (elements) => {
-      let results = [];
-      for (const element of elements) {
+      return elements.reduce((downloads, element) => {
         const category = element.querySelector(".title");
-        if (!category) continue;
+        if (!category) return downloads;
         if (category.textContent.trim().toLowerCase().includes("game download")) {
           const items = element.querySelectorAll(".item-expand-wrap");
-          results = [
-            ...results,
+          return [
+            ...downloads,
             ...Array.from(items).map((item) => {
               const name = item.querySelector(".item[title]").getAttribute("title").trim();
               const href = item.querySelector(".items-group a").href.trim();
@@ -50,8 +49,8 @@ export default {
             }),
           ];
         }
-      }
-      return results;
+        return downloads;
+      }, []);
     });
 
     return {
