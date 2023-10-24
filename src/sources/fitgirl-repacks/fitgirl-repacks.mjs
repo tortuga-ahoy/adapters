@@ -2,13 +2,13 @@ export default {
   id: "fitgirl-repacks",
   name: "FitGirl Repacks",
   type: "source",
-  version: "0.1.2",
+  version: "0.1.3",
   source: "https://fitgirl-repacks.site/",
   support: "https://fitgirl-repacks.site/donations/",
 
   search: async (browser, { query }) => {
     const page = await browser.newPage();
-    await page.goto(`https://fitgirl-repacks.site/?s=${query}`);
+    await page.goto(`https://fitgirl-repacks.site/?s=${query}`, { waitUntil: "load" });
     await page.waitForSelector("#content");
 
     const results = await page.$$eval(".entry-header", (entries) =>
@@ -28,18 +28,19 @@ export default {
 
   fetch: async (browser, { url }) => {
     const gamePage = await browser.newPage();
-    await gamePage.goto(url);
+    await gamePage.goto(url, { waitUntil: "load" });
     const content = await gamePage.waitForSelector(".entry-content");
 
     const cover = await content.$$eval(`img`, (images) => images[0].src);
 
-    const { title, subtitle } = await content.$eval(`h3`, (heading) => {
+    const { title, version } = await content.$eval(`h3`, (heading) => {
       const title = heading.querySelector("strong");
       const spans = heading.querySelectorAll("span");
       const subtitle = spans.length > 1 ? spans[spans.length - 1] : title.querySelector("span");
+      const version = subtitle?.textContent.trim() || "";
       return {
-        title: title.textContent.replace(subtitle, "").trim(),
-        subtitle: subtitle?.textContent.trim() || "",
+        title: title.textContent.replace(version, "").trim(),
+        version,
       };
     });
 
@@ -73,7 +74,7 @@ export default {
     const data = {
       cover,
       title,
-      subtitle,
+      version,
       description,
       info,
       downloads,

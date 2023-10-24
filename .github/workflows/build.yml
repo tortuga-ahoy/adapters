@@ -1,4 +1,4 @@
-name: Generate adapters build and push to repo branch
+name: Generate extensions build and push to repo branch
 
 on:
   push:

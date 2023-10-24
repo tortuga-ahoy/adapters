@@ -16,7 +16,7 @@ const readdirRecursive = async (dir) => {
   return Array.prototype.concat(...files);
 };
 
-const isValidAdapter = (file) => {
+const isValidExtension = (file) => {
   const filename = basename(file);
   const extension = extname(file).toLowerCase();
   return (
@@ -27,37 +27,37 @@ const isValidAdapter = (file) => {
   );
 };
 
-const getAdapters = async () => {
-  const adapters = [];
-  const files = (await readdirRecursive(ROOT_PATH)).filter(isValidAdapter);
+const getExtensions = async () => {
+  const extensions = [];
+  const files = (await readdirRecursive(ROOT_PATH)).filter(isValidExtension);
   for (const file of files) {
     try {
       const module = await import(`file://${file}`);
-      const adapter = module.default;
-      if (adapter.draft) {
+      const extension = module.default;
+      if (extension.draft) {
         continue;
       }
-      adapters.push({ ...adapter, file });
+      extensions.push({ ...extension, file });
     } catch (error) {
       console.error(file, error);
     }
   }
-  return adapters;
+  return extensions;
 };
 
-const adapters = await getAdapters();
+const extensions = await getExtensions();
 
 await build({
   build: {
     lib: {
-      entry: adapters.map((adapter) => adapter.file),
+      entry: extensions.map((extension) => extension.file),
       fileName: (_, entryName) => `${entryName}.mjs`,
       formats: ["es"],
     },
   },
 });
 
-const data = adapters.map(({ id, name, type, version, source, file }) => ({
+const data = extensions.map(({ id, name, type, version, source, file }) => ({
   id,
   name,
   type,

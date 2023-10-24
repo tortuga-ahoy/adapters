@@ -56,7 +56,7 @@ export default {
     return {
       cover: null,
       title,
-      subtitle: "",
+      version: "",
       description: "",
       info: "",
       downloads,

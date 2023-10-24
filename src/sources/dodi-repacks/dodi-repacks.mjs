@@ -59,7 +59,7 @@ export default {
     return {
       cover,
       title,
-      subtitle: "",
+      version: "",
       description: "",
       info: "",
       downloads,

@@ -3,18 +3,18 @@ import { describe, expect, afterAll, test, expectTypeOf } from "vitest";
 const SEMVER_REGEX =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
-export const testAdapter = async (adapter, props) => {
-  test(`should have a valid semantic version number (${adapter.version})`, () => {
-    expect(adapter.version).toMatch(SEMVER_REGEX);
+export const testExtension = async (extension, props) => {
+  test(`should have a valid semantic version number (${extension.version})`, () => {
+    expect(extension.version).toMatch(SEMVER_REGEX);
   });
 
-  test(`should have a valid type (${adapter.type})`, () => {
-    expect(["source", "metadata", "filehost"]).toContain(adapter.type);
+  test(`should have a valid type (${extension.type})`, () => {
+    expect(["source", "metadata", "filehost"]).toContain(extension.type);
   });
 
-  describe.runIf(adapter.type === "source")("working correctly as a source adapter", async () => {
-    test(`should have a valid source (${adapter.source})`, () => {
-      expect(adapter.source).toBeTruthy();
+  describe.runIf(extension.type === "source")("working correctly as a source extension", async () => {
+    test(`should have a valid source (${extension.source})`, () => {
+      expect(extension.source).toBeTruthy();
     });
 
     const puppeteer = await import("puppeteer-extra");
@@ -27,7 +27,7 @@ export const testAdapter = async (adapter, props) => {
     });
 
     let page = (await browser.pages())[0];
-    await page.goto(adapter.source, { waitUntil: "load" });
+    await page.goto(extension.source, { waitUntil: "load" });
     const challenge = await page.$("iframe[src*='challenges.cloudflare']");
     if (challenge) {
       await page.close();
@@ -37,7 +37,7 @@ export const testAdapter = async (adapter, props) => {
           `Test suite needs manual challenge clearance on this site to run automated tasks.\nPlease solve the challenge, close the browser, and run the test again`
         )
       );
-      await page.goto(adapter.source);
+      await page.goto(extension.source);
       browser.disconnect();
       return;
     }
@@ -46,7 +46,7 @@ export const testAdapter = async (adapter, props) => {
       test(
         `should return a list of valid results`,
         async () => {
-          const results = await adapter.search(browser, { query: props.searchQuery });
+          const results = await extension.search(browser, { query: props.searchQuery });
           expect(results).toEqual(
             expect.arrayContaining([
               expect.objectContaining({ title: expect.any(String), url: expect.any(String) }),
@@ -58,7 +58,7 @@ export const testAdapter = async (adapter, props) => {
       test(
         `should handle searches with no results`,
         async () => {
-          const results = await adapter.search(browser, { query: `$0bp94U@l9/R` });
+          const results = await extension.search(browser, { query: `$0bp94U@l9/R` });
           expect(results).toHaveLength(0);
         },
         { timeout: 10 * 30000 }
@@ -70,7 +70,7 @@ export const testAdapter = async (adapter, props) => {
       test(
         `should return a valid object`,
         async () => {
-          const result = await adapter.fetch(browser, { url: props.gameUrl });
+          const result = await extension.fetch(browser, { url: props.gameUrl });
           expect(result).toBeDefined();
           game = result;
         },

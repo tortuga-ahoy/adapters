@@ -1,7 +1,7 @@
-import adapter from "./fitgirl-repacks.mjs";
-import { testAdapter } from "@/tests/tests.mjs";
+import extension from "./fitgirl-repacks.mjs";
+import { testExtension } from "@/tests/tests.mjs";
 
-await testAdapter(adapter, {
+await testExtension(extension, {
   searchQuery: "fallout",
   gameUrl: "https://fitgirl-repacks.site/fallout-4/",
 });
