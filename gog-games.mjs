@@ -39,7 +39,7 @@ const p = {
     return {
       cover: null,
       title: n,
-      subtitle: "",
+      version: "",
       description: "",
       info: "",
       downloads: r
