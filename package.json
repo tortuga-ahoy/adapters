@@ -4,10 +4,10 @@
     "build": "node scripts/build.mjs"
   },
   "devDependencies": {
-    "puppeteer": "^21.3.6",
+    "puppeteer": "^21.6.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "vite": "^4.3.9",
-    "vitest": "^0.34.6"
+    "vite": "^5.0.10",
+    "vitest": "^1.1.1"
   }
 }
